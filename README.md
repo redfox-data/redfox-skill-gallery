@@ -23,7 +23,7 @@
 ### 安装
 
 ```sh
-dsh plugin --profile web add -w "file:/绝对路径/redfox-skill-gallery"
+dsh plugin --profile web add -w github:redfox-data/redfox-skill-gallery
 ```
 
 安装完成后重启 `dsh web` 生效。
