@@ -1,0 +1,6 @@
+# redfox-skill-gallery bundle patch.
+# `id`   = the Cordis plugin id (see `export const name` in lib/index.js)
+# `name` = the npm package name (resolved from the profile's node_modules)
+- insert:
+    - id: redfox-skill-gallery
+      name: 'redfox-skill-gallery'
