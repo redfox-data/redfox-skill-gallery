@@ -1,45 +1,50 @@
-# redfox-skill-gallery
+# RedFox Skill Gallery / redfox-skill-gallery
 
-> 红狐 Skills 可视化画廊插件 —— 把 `redfox-community-dsh` 里的红狐社区 skills 用卡片形式呈现在 DeepSeek Harness 的 Web 界面里，点一下就能用。
+<p align="right">
+  English
+  <a href="https://github.com/redfox-data/redfox-skill-gallery/blob/main/README.zh.md">中文</a>
+</p>
 
-## 简介
+> RedFox Skills visual gallery plugin — presents RedFox community skills from `redfox-community-dsh` as cards in the DeepSeek Harness Web UI, ready to use with one click.
 
-`redfox-skill-gallery` 是 DeepSeek Harness 的 Web 插件。它在侧边栏底部加一个「红狐Skills」入口，点击后整个界面切换为卡片式技能画廊，集中展示 `redfox-community-dsh` 插件内的全部红狐社区 skills（不混入你本地的 skills）。
+## Overview
 
-每张卡片展示技能的中文名、slug 和描述，支持实时搜索、查看 README 详情，并一键把技能引用到输入框使用。如果尚未安装 `redfox-community-dsh`，打开画廊时会自动帮你安装。
+`redfox-skill-gallery` is a DeepSeek Harness Web plugin. It adds a **RedFox Skills** entry at the bottom of the sidebar. Click it to switch the entire UI into a card-style skill gallery that lists all RedFox community skills from the `redfox-community-dsh` plugin (your local skills are not mixed in).
 
-## 功能特性
+Each card shows the skill’s Chinese name, slug, and description. You can search in real time, open README details, and insert a skill reference into the input box with one click. If `redfox-community-dsh` is not installed yet, opening the gallery will install it for you automatically.
 
-- 集中展示 `redfox-community-dsh` 内的红狐社区 skills。
-- 卡片式画廊，每张卡片包含中文名、slug（技能技术标识，如 `/bili-ai-feed`）和描述。
-- 按中文名 / slug / 描述实时搜索。
-- 点击卡片查看该技能的 README 详情，支持中文 / 英文切换。
-- 点击「立即使用」把技能引用到输入框，可继续补充或修改需求后再发送。
-- 未安装 `redfox-community-dsh` 时自动安装。
-- 中英文界面。
+## Features
 
-## 使用方法
+- Lists all RedFox community skills from `redfox-community-dsh`.
+- Card-style gallery; each card includes Chinese name, slug (technical skill id, e.g. `/bili-ai-feed`), and description.
+- Real-time search by Chinese name / slug / description.
+- Click a card to view the skill README, with Chinese / English switching.
+- Click **Use now** to insert the skill into the input box; you can add or edit your request before sending.
+- Auto-installs `redfox-community-dsh` when it is missing.
+- Chinese and English UI.
 
-### 安装
+## How to use
+
+### Install
 
 ```sh
 dsh plugin --profile web add -w github:redfox-data/redfox-skill-gallery
 ```
 
-安装完成后重启 `dsh web` 生效。
+Restart `dsh web` after install for the change to take effect.
 
-### 使用
+### Usage
 
-1. 重启后刷新页面，点击左侧边栏底部的「红狐Skills」按钮。
-2. 画廊以卡片形式展示所有红狐社区 skills。
-3. 在顶部搜索框输入关键词，按中文名 / slug / 描述过滤。
-4. 点击某张卡片，右侧滑出详情面板，查看该技能的 README（可切换中文 / 英文）。
-5. 点击卡片上的「立即使用」，技能会以 `/name` 的形式引用到输入框，补充或修改你的需求后回车发送。
-6. 按 ESC 或右上角「关闭」返回会话。
+1. After restart, refresh the page and click the **RedFox Skills** button at the bottom of the left sidebar.
+2. The gallery shows all RedFox community skills as cards.
+3. Type keywords in the top search box to filter by Chinese name / slug / description.
+4. Click a card to open the detail panel on the right and read the skill README (switch between Chinese / English).
+5. Click **Use now** on a card to insert the skill as `/name` into the input box; add or edit your request, then press Enter to send.
+6. Press ESC or click **Close** in the top-right to return to the conversation.
 
-> 若尚未安装 `redfox-community-dsh`，打开画廊时会自动执行安装，完成后按提示重启 `dsh web` 即可。
+> If `redfox-community-dsh` is not installed, opening the gallery will install it automatically. Restart `dsh web` as prompted when done.
 
-## 卸载
+## Uninstall
 
 ```sh
 dsh plugin --profile web remove redfox-skill-gallery
