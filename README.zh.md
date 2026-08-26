@@ -27,6 +27,14 @@
 
 ### 安装
 
+建议提前安装 `redfox-community-dsh` 插件。未安装时，打开画廊也会自动安装，但自动安装后仍需重启 `dsh web` 才能生效，因此提前安装可少重启一次：
+
+```sh
+dsh plugin --profile web add -w github:redfox-data/redfox-community-dsh
+```
+
+再安装本插件：
+
 ```sh
 dsh plugin --profile web add -w github:redfox-data/redfox-skill-gallery
 ```
@@ -42,7 +50,7 @@ dsh plugin --profile web add -w github:redfox-data/redfox-skill-gallery
 5. 点击卡片上的「立即使用」，技能会以 `/name` 的形式引用到输入框，补充或修改你的需求后回车发送。
 6. 按 ESC 或右上角「关闭」返回会话。
 
-> 若尚未安装 `redfox-community-dsh`，打开画廊时会自动执行安装，完成后按提示重启 `dsh web` 即可。
+> 若尚未安装 `redfox-community-dsh`，打开画廊时会自动执行安装；安装完成后仍需重启 `dsh web` 才能生效，因此更推荐提前安装。
 
 ## 卸载
 

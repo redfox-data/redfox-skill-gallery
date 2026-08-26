@@ -27,6 +27,14 @@ Each card shows the skill’s Chinese name, slug, and description. You can searc
 
 ### Install
 
+We recommend installing the `redfox-community-dsh` plugin in advance. If it is missing, opening the gallery will install it automatically — but you still need to restart `dsh web` afterward for it to take effect. Installing ahead of time avoids an extra restart:
+
+```sh
+dsh plugin --profile web add -w github:redfox-data/redfox-community-dsh
+```
+
+Then install this plugin:
+
 ```sh
 dsh plugin --profile web add -w github:redfox-data/redfox-skill-gallery
 ```
@@ -42,7 +50,7 @@ Restart `dsh web` after install for the change to take effect.
 5. Click **Use now** on a card to insert the skill as `/name` into the input box; add or edit your request, then press Enter to send.
 6. Press ESC or click **Close** in the top-right to return to the conversation.
 
-> If `redfox-community-dsh` is not installed, opening the gallery will install it automatically. Restart `dsh web` as prompted when done.
+> If `redfox-community-dsh` is not installed, opening the gallery will install it automatically — but you still need to restart `dsh web` afterward for it to take effect. Installing it in advance is recommended.
 
 ## Uninstall
 
