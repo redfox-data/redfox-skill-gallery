@@ -16,6 +16,7 @@ Each card shows the skill’s Chinese name, slug, and description. You can searc
 ## Features
 
 - Lists all RedFox community skills from `redfox-community-dsh`.
+- Filter by category: a filter row under the header groups skills by type (Search, Trending, Accounts, Comments, Feeds & Subs, Download, Writing, Compliance, AI Generation, AI Search, Finance, Tools); each card also shows its category tag.
 - Card-style gallery; each card includes Chinese name, slug (technical skill id, e.g. `/bili-ai-feed`), and description.
 - Real-time search by Chinese name / slug / description.
 - Click a card to view the skill README, with Chinese / English switching.
@@ -45,12 +46,23 @@ Restart `dsh web` after install for the change to take effect.
 
 1. After restart, refresh the page and click the **RedFox Skills** button at the bottom of the left sidebar.
 2. The gallery shows all RedFox community skills as cards.
-3. Type keywords in the top search box to filter by Chinese name / slug / description.
-4. Click a card to open the detail panel on the right and read the skill README (switch between Chinese / English).
-5. Click **Use now** on a card to insert the skill as `/name` into the input box; add or edit your request, then press Enter to send.
-6. Press ESC or click **Close** in the top-right to return to the conversation.
+3. Click a category chip in the filter row (All / Search / Trending / …) to narrow by type; it stacks with the search box.
+4. Type keywords in the top search box to filter by Chinese name / slug / description.
+5. Click a card to open the detail panel on the right and read the skill README (switch between Chinese / English).
+6. Click **Use now** on a card to insert the skill as `/name` into the input box; add or edit your request, then press Enter to send.
+7. Press ESC or click **Close** in the top-right to return to the conversation.
 
 > If `redfox-community-dsh` is not installed, opening the gallery will install it automatically — but you still need to restart `dsh web` afterward for it to take effect. Installing it in advance is recommended.
+
+## Skill categories
+
+Category data lives in `lib/skill-categories.json` of this plugin:
+
+- `categories`: category definitions (`id` / Chinese label / English label); array order is the order of the filter row.
+- `skills`: pre-classified mapping from skill name to category id, so skills are grouped by type right after the first install.
+- `fallbackRules`: keyword-based fallback rules; a new skill not yet in the mapping is auto-classified by these rules first, and falls back to "Other" when nothing matches.
+
+When `redfox-community-dsh` adds new skills later, the agent decides the category and appends one line `"<skill-name>": "<category-id>"` to `skills`. The list route re-reads this file on every request, so the change applies without restarting `dsh web`.
 
 ## Uninstall
 

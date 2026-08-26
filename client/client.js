@@ -32,6 +32,14 @@ window.__ModuleLoader__.load({
       ".sg_close{flex:none;height:36px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:var(--dsw-alias-interactive-bg-hover);border:1px solid var(--dsw-alias-border-l2);border-radius:10px;padding:0 14px;font:inherit;font-size:13px}",
       ".sg_close:hover{color:var(--dsw-alias-label-primary);border-color:var(--dsw-alias-border-l1)}",
 
+      // category filter row (below header, horizontally scrollable)
+      ".sg_cats{flex:none;align-items:center;gap:8px;padding:10px 20px;display:flex;overflow-x:auto;border-bottom:1px solid var(--dsw-alias-border-l2);scrollbar-width:none}",
+      ".sg_cats::-webkit-scrollbar{display:none}",
+      ".sg_cat{flex:none;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:var(--dsw-alias-interactive-bg-hover);border:1px solid var(--dsw-alias-border-l2);border-radius:999px;padding:0 12px;font:inherit;font-size:12px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}",
+      ".sg_cat:hover{color:var(--dsw-alias-label-primary);border-color:var(--dsw-alias-border-l1)}",
+      ".sg_cat[data-active='true']{color:#ef4444;border-color:#ef4444;background:rgba(239,68,68,.08)}",
+      ".sg_catCount{opacity:.6;font-size:11px}",
+
       // main: list (left) + detail panel (right, 20%)
       ".sg_main{flex:1;min-height:0;display:flex;flex-direction:row;overflow:hidden}",
       ".sg_list{flex:1;min-width:0;overflow-y:auto;padding:20px}",
@@ -45,6 +53,7 @@ window.__ModuleLoader__.load({
       ".sg_name{color:var(--dsw-alias-label-primary);font-size:15px;font-weight:600;line-height:21px}",
       ".sg_slug{color:var(--dsw-alias-label-tertiary);font-family:var(--dsh-font-mono,monospace);font-size:11px;line-height:16px;word-break:break-all}",
       ".sg_userOnly{align-self:flex-start;background:var(--dsw-alias-state-warn-tertiary);color:var(--dsw-alias-state-warn-label);border-radius:8px;padding:0 6px;font-size:10px;line-height:16px;display:inline-flex}",
+      ".sg_catTag{align-self:flex-start;background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-tertiary);border-radius:8px;padding:0 6px;font-size:10px;line-height:16px;display:inline-flex}",
       ".sg_desc{color:var(--dsw-alias-label-secondary);font-size:13px;line-height:19px;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}",
       ".sg_use{cursor:pointer;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.25);border-radius:10px;align-items:center;justify-content:center;height:34px;padding:0 12px;font:inherit;font-size:13px;font-weight:500;display:inline-flex;transition:background .25s ease,color .25s ease,border-color .25s ease}",
       ".sg_use:hover:not(:disabled){background:#ef4444;border-color:#ef4444;color:#fff}",
@@ -90,6 +99,9 @@ window.__ModuleLoader__.load({
       "count": "共 {count} 个技能",
       "use": "立即使用",
       "userOnly": "仅用户",
+      "lang.current": "zh",
+      "cat.all": "全部",
+      "emptyCat": "该分类下暂无技能。",
       "failed": "操作失败：{message}",
       "detail.loading": "正在加载说明…",
       "detail.empty": "该技能暂无说明文档。",
@@ -112,6 +124,9 @@ window.__ModuleLoader__.load({
       "count": "{count} skills",
       "use": "Use now",
       "userOnly": "user-only",
+      "lang.current": "en",
+      "cat.all": "All",
+      "emptyCat": "No skills in this category yet.",
       "failed": "Failed: {message}",
       "detail.loading": "Loading readme…",
       "detail.empty": "No readme for this skill.",
@@ -157,6 +172,7 @@ window.__ModuleLoader__.load({
             installed: !!(d && d.installed),
             count: (d && d.count) || 0,
             skills: (d && d.skills) || [],
+            categories: (d && d.categories) || [],
             error: d && d.error,
           };
         });
@@ -220,6 +236,12 @@ window.__ModuleLoader__.load({
         var taskState = React.useState("");
         var task = taskState[0];
         var setTask = taskState[1];
+        var catsState = React.useState([]);
+        var cats = catsState[0];
+        var setCats = catsState[1];
+        var activeCatState = React.useState("all");
+        var activeCat = activeCatState[0];
+        var setActiveCat = activeCatState[1];
 
         var selectedState = React.useState(null);
         var selected = selectedState[0];
@@ -240,6 +262,8 @@ window.__ModuleLoader__.load({
           setError(null);
           setSkills(null);
           setInstall("idle");
+          setCats([]);
+          setActiveCat("all");
           var abort = new AbortController();
           fetchRedfoxSkills().then(function (d) {
             if (abort.signal.aborted) return;
@@ -263,6 +287,7 @@ window.__ModuleLoader__.load({
               return;
             }
             setSkills(d.skills);
+            setCats(d.categories || []);
           }).catch(function (err) {
             if (abort.signal.aborted) return;
             setError(String((err && err.message) || err));
@@ -338,7 +363,27 @@ window.__ModuleLoader__.load({
         }
 
         var q = query.trim().toLowerCase();
+        var uiLang = t("lang.current");
+        var catLabel = function (id) {
+          for (var i = 0; i < cats.length; i++) {
+            if (cats[i] && cats[i].id === id) return (uiLang === "en" ? cats[i].en : cats[i].zh) || cats[i].zh || cats[i].en || null;
+          }
+          return null;
+        };
+        var catCounts = {};
+        (skills || []).forEach(function (s) {
+          var c = s.category || "other";
+          catCounts[c] = (catCounts[c] || 0) + 1;
+        });
+        // chips follow the registry order; unknown ids (e.g. a category the
+        // agent added to the skills map but not to `categories`) trail behind.
+        var knownCat = {};
+        cats.forEach(function (c) { if (c && c.id) knownCat[c.id] = true; });
+        var extraCats = Object.keys(catCounts).filter(function (id) {
+          return !knownCat[id] && catCounts[id] > 0;
+        });
         var filtered = (skills || []).filter(function (s) {
+          if (activeCat !== "all" && (s.category || "other") !== activeCat) return false;
           if (!q) return true;
           var name = (s.name || "").toLowerCase();
           var zhName = (s.zhName || "").toLowerCase();
@@ -351,6 +396,28 @@ window.__ModuleLoader__.load({
         var selectedZhName = selected === null ? "" : (selectedSkill ? (selectedSkill.zhName || titleCase(selectedSkill.name)) : titleCase(selected));
         var readmeText = readme === null ? null : (lang === "zh" ? (readme.zh || readme.en || "") : (readme.en || readme.zh || ""));
 
+        function renderCatChip(id, label, count) {
+          return React.createElement("button", {
+            key: id,
+            type: "button",
+            className: "sg_cat",
+            "data-active": activeCat === id ? "true" : void 0,
+            onClick: function () { setActiveCat(id); }
+          }, label, React.createElement("span", { className: "sg_catCount" }, String(count)));
+        }
+
+        var catRow = (skills || []).length > 0
+          ? React.createElement("div", { className: "sg_cats", role: "tablist" },
+              [renderCatChip("all", t("cat.all"), (skills || []).length)]
+                .concat(cats.filter(function (c) { return c && c.id && catCounts[c.id] > 0; }).map(function (c) {
+                  return renderCatChip(c.id, catLabel(c.id) || c.id, catCounts[c.id]);
+                }))
+                .concat(extraCats.map(function (id) {
+                  return renderCatChip(id, catLabel(id) || id, catCounts[id]);
+                }))
+            )
+          : null;
+
         function renderCard(s) {
           var zhName = s.zhName || titleCase(s.name);
           return React.createElement("article", {
@@ -362,6 +429,7 @@ window.__ModuleLoader__.load({
             React.createElement("div", { className: "sg_cardHead" },
               React.createElement("span", { className: "sg_name" }, zhName),
               React.createElement("span", { className: "sg_slug" }, "/" + s.name),
+              s.category && catLabel(s.category) ? React.createElement("span", { className: "sg_catTag" }, catLabel(s.category)) : null,
               s.modelInvocable === false ? React.createElement("span", { className: "sg_userOnly" }, t("userOnly")) : null
             ),
             s.description ? React.createElement("p", { className: "sg_desc" }, s.description) : null,
@@ -435,6 +503,7 @@ window.__ModuleLoader__.load({
             }),
             React.createElement("button", { type: "button", className: "sg_close", onClick: close }, t("close"))
           ),
+          catRow,
           React.createElement("div", { className: "sg_main" },
             React.createElement("div", { className: "sg_list" },
               error !== null ? React.createElement("p", { className: "sg_error", role: "alert" }, error) : null,
@@ -442,7 +511,7 @@ window.__ModuleLoader__.load({
               install === "installed" ? React.createElement("p", { className: "sg_note" }, t("install.installed")) : null,
               loading ? React.createElement("p", { className: "sg_note" }, t("loading")) : null,
               !loading && error === null && install !== "installing" && install !== "installed" && (skills || []).length === 0 ? React.createElement("p", { className: "sg_note" }, t("empty")) : null,
-              !loading && error === null && (skills || []).length > 0 && filtered.length === 0 ? React.createElement("p", { className: "sg_note" }, t("emptyQuery", { query: query })) : null,
+              !loading && error === null && (skills || []).length > 0 && filtered.length === 0 ? React.createElement("p", { className: "sg_note" }, q ? t("emptyQuery", { query: query }) : t("emptyCat")) : null,
               filtered.length > 0 ? React.createElement("div", null,
                 React.createElement("p", { className: "sg_count" }, t("count", { count: filtered.length })),
                 React.createElement("div", { className: "sg_grid" }, filtered.map(renderCard))
