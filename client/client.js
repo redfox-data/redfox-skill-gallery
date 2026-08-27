@@ -31,6 +31,9 @@ window.__ModuleLoader__.load({
       ".sg_search:focus{border-color:#ef4444}",
       ".sg_close{flex:none;height:36px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:var(--dsw-alias-interactive-bg-hover);border:1px solid var(--dsw-alias-border-l2);border-radius:10px;padding:0 14px;font:inherit;font-size:13px}",
       ".sg_close:hover{color:var(--dsw-alias-label-primary);border-color:var(--dsw-alias-border-l1)}",
+      ".sg_refresh{flex:none;height:36px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:var(--dsw-alias-interactive-bg-hover);border:1px solid var(--dsw-alias-border-l2);border-radius:10px;padding:0 14px;font:inherit;font-size:13px}",
+      ".sg_refresh:hover{color:var(--dsw-alias-label-primary);border-color:var(--dsw-alias-border-l1)}",
+      ".sg_refresh:disabled{opacity:.5;cursor:default}",
 
       // category filter row (below header, horizontally scrollable)
       ".sg_cats{flex:none;align-items:center;gap:8px;padding:10px 20px;display:flex;overflow-x:auto;border-bottom:1px solid var(--dsw-alias-border-l2);scrollbar-width:none}",
@@ -109,6 +112,7 @@ window.__ModuleLoader__.load({
       "detail.empty": "该技能暂无说明文档。",
       "copy.slug": "点击复制 /{name}",
       "copied": "已复制 /{name}",
+      "refresh": "刷新",
       "install.installing": "未检测到 redfox-community-dsh，正在自动安装…",
       "install.installed": "已自动安装 redfox-community-dsh，请重启 dsh web 后生效。",
       "install.failed": "自动安装失败：{message}"
@@ -136,6 +140,7 @@ window.__ModuleLoader__.load({
       "detail.empty": "No readme for this skill.",
       "copy.slug": "Click to copy /{name}",
       "copied": "Copied /{name}",
+      "refresh": "Refresh",
       "install.installing": "redfox-community-dsh not found — auto-installing…",
       "install.installed": "redfox-community-dsh installed — restart dsh web to apply.",
       "install.failed": "Auto-install failed: {message}"
@@ -261,6 +266,9 @@ window.__ModuleLoader__.load({
         var readmeState = React.useState(null);
         var readme = readmeState[0];
         var setReadme = readmeState[1];
+        var reloadState = React.useState(0);
+        var reloadTick = reloadState[0];
+        var setReloadTick = reloadState[1];
 
         var currentId = useSessions
           ? useSessions(function (s) { return s.current; })
@@ -304,7 +312,7 @@ window.__ModuleLoader__.load({
             setSkills([]);
           });
           return function () { abort.abort(); };
-        }, [open]);
+        }, [open, reloadTick]);
 
         React.useEffect(function () {
           if (!open) return;
@@ -527,6 +535,12 @@ window.__ModuleLoader__.load({
               value: task,
               onChange: function (e) { setTask(e.target.value); }
             }),
+            React.createElement("button", {
+              type: "button",
+              className: "sg_refresh",
+              disabled: loading || install === "installing",
+              onClick: function () { setReloadTick(reloadTick + 1); }
+            }, t("refresh")),
             React.createElement("button", { type: "button", className: "sg_close", onClick: close }, t("close"))
           ),
           catRow,
