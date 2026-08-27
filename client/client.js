@@ -49,9 +49,11 @@ window.__ModuleLoader__.load({
       ".sg_grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;display:grid}",
       ".sg_card{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-base);border-radius:14px;flex-direction:column;gap:10px;padding:16px;display:flex;text-align:left;cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease,transform .15s ease}",
       ".sg_card:hover{border-color:#ef4444;box-shadow:var(--dsw-shadow-lv2);transform:translateY(-2px)}",
+      ".sg_card[data-selected]{border-color:#ef4444;box-shadow:0 0 0 1px rgba(239,68,68,.35),var(--dsw-shadow-lv2);background:rgba(239,68,68,.04)}",
       ".sg_cardHead{flex-direction:column;gap:3px;display:flex}",
       ".sg_name{color:var(--dsw-alias-label-primary);font-size:15px;font-weight:600;line-height:21px}",
-      ".sg_slug{color:var(--dsw-alias-label-tertiary);font-family:var(--dsh-font-mono,monospace);font-size:11px;line-height:16px;word-break:break-all}",
+      ".sg_slug{color:var(--dsw-alias-label-tertiary);font-family:var(--dsh-font-mono,monospace);font-size:11px;line-height:16px;word-break:break-all;cursor:pointer;align-self:flex-start;border:none;background:0 0;padding:0;font:inherit}",
+      ".sg_slug:hover{color:#ef4444;text-decoration:underline}",
       ".sg_userOnly{align-self:flex-start;background:var(--dsw-alias-state-warn-tertiary);color:var(--dsw-alias-state-warn-label);border-radius:8px;padding:0 6px;font-size:10px;line-height:16px;display:inline-flex}",
       ".sg_catTag{align-self:flex-start;background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-tertiary);border-radius:8px;padding:0 6px;font-size:10px;line-height:16px;display:inline-flex}",
       ".sg_desc{color:var(--dsw-alias-label-secondary);font-size:13px;line-height:19px;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}",
@@ -105,6 +107,8 @@ window.__ModuleLoader__.load({
       "failed": "操作失败：{message}",
       "detail.loading": "正在加载说明…",
       "detail.empty": "该技能暂无说明文档。",
+      "copy.slug": "点击复制 /{name}",
+      "copied": "已复制 /{name}",
       "install.installing": "未检测到 redfox-community-dsh，正在自动安装…",
       "install.installed": "已自动安装 redfox-community-dsh，请重启 dsh web 后生效。",
       "install.failed": "自动安装失败：{message}"
@@ -130,6 +134,8 @@ window.__ModuleLoader__.load({
       "failed": "Failed: {message}",
       "detail.loading": "Loading readme…",
       "detail.empty": "No readme for this skill.",
+      "copy.slug": "Click to copy /{name}",
+      "copied": "Copied /{name}",
       "install.installing": "redfox-community-dsh not found — auto-installing…",
       "install.installed": "redfox-community-dsh installed — restart dsh web to apply.",
       "install.failed": "Auto-install failed: {message}"
@@ -227,6 +233,9 @@ window.__ModuleLoader__.load({
         var errorState = React.useState(null);
         var error = errorState[0];
         var setError = errorState[1];
+        var noteState = React.useState(null);
+        var note = noteState[0];
+        var setNote = noteState[1];
         var installState = React.useState("idle");
         var install = installState[0];
         var setInstall = installState[1];
@@ -260,6 +269,7 @@ window.__ModuleLoader__.load({
         React.useEffect(function () {
           if (!open) return;
           setError(null);
+          setNote(null);
           setSkills(null);
           setInstall("idle");
           setCats([]);
@@ -428,7 +438,23 @@ window.__ModuleLoader__.load({
           },
             React.createElement("div", { className: "sg_cardHead" },
               React.createElement("span", { className: "sg_name" }, zhName),
-              React.createElement("span", { className: "sg_slug" }, "/" + s.name),
+              React.createElement("button", {
+                type: "button",
+                className: "sg_slug",
+                title: t("copy.slug", { name: s.name }),
+                onClick: function (e) {
+                  e.stopPropagation();
+                  var text = "/" + s.name;
+                  var done = function () { setError(null); setNote(t("copied", { name: s.name })); };
+                  if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(done).catch(function () {
+                      setError(t("failed", { message: "clipboard" }));
+                    });
+                  } else {
+                    setError(t("failed", { message: "clipboard" }));
+                  }
+                }
+              }, "/" + s.name),
               s.category && catLabel(s.category) ? React.createElement("span", { className: "sg_catTag" }, catLabel(s.category)) : null,
               s.modelInvocable === false ? React.createElement("span", { className: "sg_userOnly" }, t("userOnly")) : null
             ),
@@ -507,6 +533,7 @@ window.__ModuleLoader__.load({
           React.createElement("div", { className: "sg_main" },
             React.createElement("div", { className: "sg_list" },
               error !== null ? React.createElement("p", { className: "sg_error", role: "alert" }, error) : null,
+              note !== null ? React.createElement("p", { className: "sg_note", role: "status" }, note) : null,
               install === "installing" ? React.createElement("p", { className: "sg_note" }, t("install.installing")) : null,
               install === "installed" ? React.createElement("p", { className: "sg_note" }, t("install.installed")) : null,
               loading ? React.createElement("p", { className: "sg_note" }, t("loading")) : null,
