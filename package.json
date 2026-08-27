@@ -14,8 +14,28 @@
     "lib",
     "client",
     "cordis.patch.yml",
-    "LICENSE"
+    "LICENSE",
+    "README.md",
+    "README.zh.md",
+    "CHANGELOG.md"
   ],
+  "keywords": [
+    "deepseek",
+    "dsh",
+    "redfox",
+    "skills",
+    "gallery",
+    "plugin"
+  ],
+  "author": "redfox-data",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/redfox-data/redfox-skill-gallery.git"
+  },
+  "bugs": {
+    "url": "https://github.com/redfox-data/redfox-skill-gallery/issues"
+  },
+  "homepage": "https://github.com/redfox-data/redfox-skill-gallery#readme",
   "license": "MIT",
   "dsh": {
     "bundle": {
